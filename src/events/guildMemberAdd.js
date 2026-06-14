@@ -33,18 +33,19 @@ export default {
 
                 const formatData = { user, guild, member };
                 const welcomeMessage = formatWelcomeMessage(
-                    welcomeConfig.welcomeMessage || welcomeConfig.welcomeEmbed?.description || 'Welcome {user} to {server}!',
+                    welcomeConfig.welcomeMessage || welcomeConfig.welcomeEmbed?.description || '¡Welcome {user} to {server}!',
                     formatData
                 );
 
                 const messageContent = welcomeConfig.welcomePing ? user.toString() : null;
 
                 const embedTitle = formatWelcomeMessage(
-                    welcomeConfig.welcomeEmbed?.title || '🎉 Bienvenido al Olimpo!',
+                    welcomeConfig.welcomeEmbed?.title || '🎉 ¡Bienvenido a SolariasMc!',
                     formatData
                 );
                 const embedFooter = welcomeConfig.welcomeEmbed?.footer
-                    ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData);
+                    ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData)
+                    : '';
 
                 const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
 
@@ -59,8 +60,8 @@ export default {
                         .setDescription(welcomeMessage)
                         .setThumbnail(user.displayAvatarURL())
                         .addFields(
-                            { name: 'User', value: `${user.tag} (${user.id})`, inline: true },
-                            { name: 'Member Count', value: guild.memberCount.toString(), inline: true }
+                            { name: 'Usuario', value: `${user.tag} (${user.id})`, inline: true },
+                            { name: 'Cantidad de Miembros', value: guild.memberCount.toString(), inline: true }
                         )
                         .setTimestamp()
                         .setFooter({ text: embedFooter });
@@ -112,21 +113,21 @@ export default {
                 guildId: guild.id,
                 eventType: EVENT_TYPES.MEMBER_JOIN,
                 data: {
-                    description: `${user.tag} joined the server`,
+                    description: `${user.tag} se unió al servidor`,
                     userId: user.id,
                     fields: [
                         {
-                            name: '👤 Member',
+                            name: '👤 Miembro',
                             value: `${user.tag} (${user.id})`,
                             inline: true
                         },
                         {
-                            name: '👥 Member Count',
+                            name: '👥 Cantidad de Miembros',
                             value: guild.memberCount.toString(),
                             inline: true
                         },
                         {
-                            name: '📅 Account Created',
+                            name: '📅 Cuenta Creada',
                             value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
                             inline: true
                         }
@@ -134,7 +135,7 @@ export default {
                 }
             });
         } catch (error) {
-            logger.debug('Error logging member join:', error);
+            logger.debug('Error al registrar la unión del miembro:', error);
         }
         
         
@@ -146,10 +147,10 @@ export default {
                 }
             }
         } catch (error) {
-            logger.debug('Error updating counters on member join:', error);
+            logger.debug('Error al actualizar los contadores en la unión del miembro:', error);
         }
         
-        // Restore birthday data if the member previously left
+        // Restaurar los datos de cumpleaños si el miembro se había ido previamente
         try {
             const backupKey = `guild:${guild.id}:birthdays:left`;
             const backup = (await member.client.db.get(backupKey)) || {};
@@ -157,58 +158,4 @@ export default {
                 const { month, day } = backup[user.id];
                 await dbSetBirthday(member.client, guild.id, user.id, month, day);
                 delete backup[user.id];
-                await member.client.db.set(backupKey, backup);
-                logger.debug(`Birthday restored for user ${user.id} in guild ${guild.id}`);
-            }
-        } catch (error) {
-            logger.debug('Error restoring birthday on member join:', error);
-        }
-        
-    } catch (error) {
-        logger.error('Error in guildMemberAdd event:', error);
-    }
-  }
-};
-
-async function handleVerification(member, guild, verificationConfig, client) {
-    const { autoVerifyOnJoin } = await import('../services/verificationService.js');
-    
-    try {
-        const result = await autoVerifyOnJoin(client, guild, member, verificationConfig);
-        
-        if (result.autoVerified) {
-            logger.info('User auto-verified on join', {
-                guildId: guild.id,
-                userId: member.id,
-                userTag: member.user.tag,
-                roleName: result.roleName,
-                criteria: result.criteria
-            });
-        } else {
-            logger.debug('User not auto-verified on join', {
-                guildId: guild.id,
-                userId: member.id,
-                reason: result.reason
-            });
-        }
-
-    } catch (error) {
-        logger.error('Error in auto-verification for member', {
-            guildId: guild.id,
-            userId: member.id,
-            userTag: member.user.tag,
-            error: error.message
-        });
-    }
-}
-
-async function assignRoleSafely(member, role) {
-    try {
-        await member.roles.add(role);
-    } catch (error) {
-        logger.warn(`Failed to assign role ${role.id} to member ${member.id}:`, error);
-    }
-}
-
-
-
+                await member.client.
