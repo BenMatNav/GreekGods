@@ -40,12 +40,11 @@ export default {
                 const messageContent = welcomeConfig.welcomePing ? user.toString() : null;
 
                 const embedTitle = formatWelcomeMessage(
-                    welcomeConfig.welcomeEmbed?.title || '🎉 Welcome!',
+                    welcomeConfig.welcomeEmbed?.title || '🎉 Bienvenido al Olimpo!',
                     formatData
                 );
                 const embedFooter = welcomeConfig.welcomeEmbed?.footer
-                    ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData)
-                    : `Welcome to ${guild.name}!`;
+                    ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData);
 
                 const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
 
